@@ -6,4 +6,5 @@ export interface CategoryModel {
   priority: number;
   mapped: false;
   parent: number | null;
+  open?: boolean;
 }

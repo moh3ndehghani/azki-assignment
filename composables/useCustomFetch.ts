@@ -4,7 +4,7 @@ export async function useCustomFetch<T>(url: string, options = {}) {
   const isClientNavigation = process.client && nuxtApp.isHydrating === false;
 
   const defaults = {
-    baseApi: config.public.baseApi,
+    baseURL: config.public.baseApi,
     key: url,
     headers: {
       Accept: "application/json",
@@ -26,32 +26,16 @@ export async function useCustomFetch<T>(url: string, options = {}) {
   };
 
   if (isClientNavigation || (process.client && options.server === false)) {
-    const fullURL = defaults.baseApi + url;
-    return $fetch(fullURL, defaults).then((response) => {
+    return $fetch(url, defaults).then((response) => {
       return { data: response };
     });
   }
 
-  const {
-    data,
-    status,
-    error,
-    refresh: originalRefresh,
-  } = await useFetch(url, defaults);
-
-  const wrappedRefresh = async () => {
-    await originalRefresh();
-    return {
-      data: unref(data),
-      status: unref(status),
-      error: unref(error),
-    };
-  };
+  const { data, status, error } = await useFetch(url, defaults);
 
   return Promise.resolve({
     data: unref(data),
     status: unref(status),
     error: unref(error),
-    refresh: wrappedRefresh,
   });
 }
